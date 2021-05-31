@@ -1,0 +1,117 @@
+module Hunter where
+
+import Daml.Script()
+import qualified DA.Map as Map
+import DA.Map (Map)
+
+-- Data model params for shipment details
+data Shipment_details = Shipment_details
+  with
+    deliveryLocation: Text
+    delivery_starting_date: Text
+    delivery_end_date: Text  deriving(Eq,Show)
+    
+-- Initiate the deal Contract by seller Userid as seller party
+template Deal_Initiate  
+  with
+    deal_id: Party
+    flow_id:Int
+    seller: Party
+    buyer: Party
+    price_agreed:Decimal
+    documents : Map Party [[Text]]
+  where
+    ensure price_agreed> 0.0
+    signatory seller
+    observer deal_id
+    
+    controller buyer can  
+       Accept_Deal: ContractId Agreement_order_details
+         do create Agreement_order_details with ..
+
+--Buyer has to sign the agreement sent by Seller and create agreement contract
+template Agreement_order_details 
+  with
+    deal_id: Party
+    flow_id:Int
+    seller: Party
+    buyer: Party
+    price_agreed:Decimal
+    documents : Map Party [[Text]]
+
+  where
+    signatory seller, buyer
+    observer deal_id
+    choice Upload_documents : ContractId Agreement_order_details
+     with
+       uploader : Party
+       document_name : [Text]
+     controller uploader
+     do assert (uploader `elem` [buyer,seller])
+        create this with documents = addComment documents uploader document_name
+
+    controller seller can 
+    -- Agreement contract created then seller initiate the shipment
+     nonconsuming Initiate_Shipment: ContractId Shipment  
+      with
+      shipment_details: Shipment_details
+       do 
+       create Shipment with order_details = this, shipment_details
+
+addComment: Map Party [[Text]] -> Party -> [Text] -> Map Party [[Text]]
+addComment prev item newComment = case Map.lookup item prev of
+  -- If the key is not in the map yet, we just add the comment
+  None -> Map.insert item [newComment] prev
+  -- If there are comments already, add to the end
+  Some existingComments -> Map.insert item (existingComments ++ [newComment]) prev
+    
+
+-- Buyer has to acept the shipment sent by seller and contract created of shipment     
+template Shipment  
+  with
+    order_details: Agreement_order_details
+    shipment_details:Shipment_details
+  where 
+    signatory order_details.seller
+    observer order_details.deal_id
+    controller order_details.buyer can 
+     Accept_Shipment: (ContractId Order)
+      do create Order with order_details,shipment_details
+
+-- Final contracct create having order and shipment details
+template Order 
+ with
+  order_details: Agreement_order_details
+  shipment_details:Shipment_details
+   where
+    agreement " Please initiate the payment "
+    signatory order_details.seller, order_details.buyer 
+    observer order_details.deal_id
+    controller order_details.buyer can
+      nonconsuming Initiate_payment : ContractId Payment
+        do 
+        create Payment with order_details,shipment_details, status = "payment initiated"
+          
+template Payment
+  with
+   order_details: Agreement_order_details
+   shipment_details:Shipment_details
+   status: Text
+    where
+    agreement " Payment Received "
+    signatory order_details.seller,order_details.buyer
+    observer order_details.deal_id
+    controller order_details.seller can
+      Accept_payment : (ContractId Invoice) with
+        do 
+          create Invoice with invoice = this, status = "Payment accepted and deal mared as closed"
+
+template Invoice
+  with
+    invoice : Payment
+    status : Text
+  where
+    agreement " Deal marked as closed "
+    signatory invoice.order_details.seller, invoice.order_details.buyer
+    observer invoice.order_details.deal_id
+    

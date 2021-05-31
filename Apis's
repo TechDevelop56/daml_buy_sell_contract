@@ -1,0 +1,204 @@
+
+Note For this file we considered Alice as Seller and Bob as buyer, you can give an user specific to their Role.
+
+Put Method: 1
+Post Methods: 6
+Get Methods: 3
+Total Api's are: 10
+
+//*******************************************************************************************************************************************//
+//						     PUT and POST URL's starts from here ...!
+//*******************************************************************************************************************************************//
+
+Put:- Deal Initiate by seller
+Url:- http://localhost:8080//Deal_Initiate/Alice
+
+{
+    "deal_id": 1,
+    "flow_id":1,
+    "seller": "Alice",
+    "buyer": "Bob",
+    "price_agreed":1000.0,
+    "documents" : []
+}
+//*******************************************************************************************************************************************//
+Post:- Deal Accpet by buer
+Url:- http://localhost:8080//acceptDeal_Initiate/Bob
+//*******************************************************************************************************************************************//
+Post:- Upload Documents by buyer and seller
+Url:- http://localhost:8080//uploadDocuments/Alice
+Body:
+
+{
+    "uploader":"Alice",  -- Change uploaded with user name who want's to submit
+    "document_name":["Hi this is Bob's Docs"]
+}
+//*******************************************************************************************************************************************//
+Post:- Initiate Shipment by Seller
+Url:- http://localhost:8080//initiateShipment/Alice
+Body:
+
+{
+    "shipment_details":{
+    "deliveryLocation": "Honking",
+    "delivery_starting_date": "21-12-2021",
+    "delivery_end_date": "25-12-2021" 
+    }       
+}
+//*******************************************************************************************************************************************//
+Post:- Accept shipment by Buyer
+Url:- http://localhost:8080//acceptShipment/Bob
+//*******************************************************************************************************************************************//
+Post:- Initiate payment by buyer
+Url:- http://localhost:8080//initiatePayment/Bob
+//*******************************************************************************************************************************************//
+Post: Seller accept the payment
+Url:- http://localhost:8080//acceptPayment/Alice
+
+//*******************************************************************************************************************************************//
+//						GET URL's starts from here ...!
+//*******************************************************************************************************************************************//
+
+Get:- Fetch Agreement details of seller and buyer
+Url:- http://localhost:8080//getAggrementDetails/Alice
+Response of seller and buyer
+
+{
+    "0024cbee0b877a57b5a68bfb037310acc8e5585f7de2d44f33f98df9eee16b5ae9": {
+        "id": {
+            "contractId": "0024cbee0b877a57b5a68bfb037310acc8e5585f7de2d44f33f98df9eee16b5ae9"
+        },
+        "data": {
+            "deal_id": 1,
+            "flow_id": 1,
+            "seller": "Alice",
+            "buyer": "Bob",
+            "price_agreed": 1000.0000000000,
+            "documents": {
+                "Alice": [
+                    [
+                        "Hi this is Alice Docs"
+                    ]
+                ],
+                "Bob": [
+                    [
+                        "Hi this is Bob's Docs"
+                    ]
+                ]
+            }
+        },
+        "agreementText": {
+            "value": ""
+        },
+        "signatories": [
+            "Bob",
+            "Alice"
+        ],
+        "observers": []
+    }
+}
+
+//*******************************************************************************************************************************************//
+
+Get:- Fetch order details of buyer and seller
+Url:- http://localhost:8080//getOrderDetails/Alice
+
+Response of seller and buyer:
+
+{
+    "009a30ca8e9d8ae0c854477586128130a38751c3049bcdbf4eb31891430a8f296e": {
+        "id": {
+            "contractId": "009a30ca8e9d8ae0c854477586128130a38751c3049bcdbf4eb31891430a8f296e"
+        },
+        "data": {
+            "order_details": {
+                "deal_id": 1,
+                "flow_id": 1,
+                "seller": "Alice",
+                "buyer": "Bob",
+                "price_agreed": 1000.0000000000,
+                "documents": {
+                    "Alice": [
+                        [
+                            "Hi this is Alice Docs"
+                        ]
+                    ],
+                    "Bob": [
+                        [
+                            "Hi this is Bob's Docs"
+                        ]
+                    ]
+                }
+            },
+            "shipment_details": {
+                "deliveryLocation": "null",
+                "delivery_starting_date": "null",
+                "delivery_end_date": "null"
+            }
+        },
+        "agreementText": {
+            "value": " Please initiate the payment "
+        },
+        "signatories": [
+            "Bob",
+            "Alice"
+        ],
+        "observers": []
+    }
+}
+
+//*******************************************************************************************************************************************//
+
+Get :- Fetch Invoice's of buyer and seller
+Url:- http://localhost:8080//getInvoice/Alice
+Response:-
+{
+    "0018fcbfe8d634c2f23ef3a8fcbb408dcc3f1241513f64063841a82eeea726dead": {
+        "id": {
+            "contractId": "0018fcbfe8d634c2f23ef3a8fcbb408dcc3f1241513f64063841a82eeea726dead"
+        },
+        "data": {
+            "invoice": {
+                "order_details": {
+                    "deal_id": 1,
+                    "flow_id": 1,
+                    "seller": "Alice",
+                    "buyer": "Bob",
+                    "price_agreed": 1000.0000000000,
+                    "documents": {
+                        "Alice": [
+                            [
+                                "Hi this is Alice Docs"
+                            ]
+                        ],
+                        "Bob": [
+                            [
+                                "Hi this is Bob's Docs"
+                            ]
+                        ]
+                    }
+                },
+                "shipment_details": {
+                    "deliveryLocation": "null",
+                    "delivery_starting_date": "null",
+                    "delivery_end_date": "null"
+                },
+                "status": "payment initiated"
+            },
+            "status": "Payment accepted and deal mared as closed"
+        },
+        "agreementText": {
+            "value": " Deal marked as closed "
+        },
+        "signatories": [
+            "Bob",
+            "Alice"
+        ],
+        "observers": []
+    }
+}
+
+
+
+
+ 

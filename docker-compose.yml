@@ -1,0 +1,15 @@
+#
+# Copyright (c) 2019, Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+services:
+  HUNTERPilot-sandbox:
+    image: digitalasset/hunterpilot-sandbox:0.0.1
+    build:
+      context: .
+      dockerfile: Dockerfile-sandbox
+    ports:
+      - "127.0.0.1:6865:6865"
+      - "127.0.0.1:7500:7500"
